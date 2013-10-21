@@ -2,13 +2,12 @@ package com.github.Danice123.javamon.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.github.Danice123.javamon.Display;
 import com.github.Danice123.javamon.Game;
 
 public class Loading extends Screen {
 	
-	private BitmapFont font;
 	private SpriteBatch batch;
 	
 	public Loading(Game game) {
@@ -17,7 +16,6 @@ public class Loading extends Screen {
 	
 	@Override
 	protected void init() {
-		font = new BitmapFont();
 		batch = new SpriteBatch();
 	}
 
@@ -27,8 +25,8 @@ public class Loading extends Screen {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
 		batch.begin();
-		font.setColor(1f, 1f, 1f, 1f);
-		font.draw(batch, "Loading... " + (getGame().getAssets().getProgress() * 100), 10, 20);
+		Display.font.setColor(1f, 1f, 1f, 1f);
+		Display.font.draw(batch, "Loading... " + (getGame().getAssets().getProgress() * 100), 10 , 11 * Display.scale);
 		batch.end();
 	}
 	

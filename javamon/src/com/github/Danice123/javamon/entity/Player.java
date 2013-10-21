@@ -6,6 +6,7 @@ import com.github.Danice123.javamon.Game;
 import com.github.Danice123.javamon.control.MenuControl;
 import com.github.Danice123.javamon.control.PlayerControl;
 import com.github.Danice123.javamon.entity.sprite.Spriteset;
+import com.github.Danice123.javamon.screen.StartMenu;
 
 public class Player extends Walkable {
 	
@@ -74,6 +75,10 @@ public class Player extends Walkable {
 				playerActivate();
 				control.A = false;
 			}
+			if (control.start) {
+				new StartMenu(game, game.getWorld());
+				menuOpen = true;
+			}
 			Dir d = control.getControl();
 			if (d != null)
 				walk(d);
@@ -109,6 +114,8 @@ public class Player extends Walkable {
 
 	@Override
 	protected int threadDelay() {
+		if (menuOpen)
+			return 5;
 		return 1;
 	}
 }

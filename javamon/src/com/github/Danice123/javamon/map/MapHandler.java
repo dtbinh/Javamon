@@ -39,9 +39,9 @@ public class MapHandler {
 	}
 	
 	public void tick() {
-		for (MapLayer layer : renderer.getMap().getLayers()) {
-			for (MapObject o : layer.getObjects()) {
-				Entity e = (Entity) o;
+		for (int j = 0; j < renderer.getMap().getLayers().getCount(); j++) {
+			for (int i = 0; i < renderer.getMap().getLayers().get(j).getObjects().getCount(); i++) {
+				Entity e = (Entity) renderer.getMap().getLayers().get(j).getObjects().get(i);
 				e.tick();
 			}
 		}

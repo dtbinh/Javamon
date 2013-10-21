@@ -36,7 +36,6 @@ public class Command {
 						lock.wait();
 					} catch (InterruptedException e) {}
 				}
-				game.getPlayer().menuOpen = false;
 			} catch (NullPointerException e) {
 				throw new ScriptException(ScriptException.BAD_STRING);
 			}

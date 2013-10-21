@@ -1,17 +1,13 @@
 package com.github.Danice123.javamon.screen;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.github.Danice123.javamon.Display;
 import com.github.Danice123.javamon.Game;
-import com.github.Danice123.javamon.control.MenuControl;
 
-public class ChatBox extends Screen implements MenuControl {
+public class ChatBox extends Screen {
 	
-	private BitmapFont font;
 	private SpriteBatch batch;
-	
 	private BorderBox border;
 	private String[] text;
 	private int index = 0;
@@ -30,8 +26,6 @@ public class ChatBox extends Screen implements MenuControl {
 	
 	@Override
 	protected void init() {
-		font = new BitmapFont();
-		font.setColor(0f, 0f, 0f, 1f);
 		batch = new SpriteBatch();
 		border = new BorderBox((Texture) getGame().getAssets().get("res/gui/border.png"));
 	}
@@ -39,8 +33,9 @@ public class ChatBox extends Screen implements MenuControl {
 	@Override
 	public void render2(float delta) {
 		batch.begin();
-		border.drawBox(batch, 0, 0, Display.WIDTH, 50);
-		font.draw(batch, text[index], border.WIDTH + 2, 50 - border.HEIGHT);
+		border.drawBox(batch, 0, 0, Display.WIDTH, 50 * Display.scale);
+		Display.font.setColor(0f, 0f, 0f, 1f);
+		Display.font.drawWrapped(batch, text[index], border.WIDTH + 2, 50 * Display.scale - border.HEIGHT, Display.WIDTH - 2* (border.WIDTH + 2));
 		batch.end();
 	}
 	
@@ -56,6 +51,7 @@ public class ChatBox extends Screen implements MenuControl {
 			synchronized (lock) {
 				lock.notifyAll();
 			}
+			getGame().getPlayer().menuOpen = false;
 			disposeMe = true;
 		} else
 			index++;

@@ -47,6 +47,7 @@ public class Game implements Runnable {
 		
 		//Gui
 		assets.load("res/gui/border.png", Texture.class);
+		assets.load("res/gui/arrow.png", Texture.class);
 		
 		//Scripts
 		assets.load("res/scripts/Sign.ps", Script.class);
