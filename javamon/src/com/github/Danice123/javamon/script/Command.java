@@ -6,7 +6,7 @@ import com.github.Danice123.javamon.Game;
 import com.github.Danice123.javamon.entity.Dir;
 import com.github.Danice123.javamon.entity.Entity;
 import com.github.Danice123.javamon.entity.Walkable;
-import com.github.Danice123.javamon.screen.ChatBox;
+import com.github.Danice123.javamon.screen.menu.ChatBox;
 
 public class Command {
 	

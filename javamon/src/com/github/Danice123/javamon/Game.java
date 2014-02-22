@@ -8,12 +8,14 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.github.Danice123.javamon.entity.Player;
 import com.github.Danice123.javamon.entity.sprite.Spriteset;
+import com.github.Danice123.javamon.loader.EntityLoader;
+import com.github.Danice123.javamon.loader.PokemonLoader;
+import com.github.Danice123.javamon.loader.ScriptLoader;
 import com.github.Danice123.javamon.map.EntityList;
-import com.github.Danice123.javamon.map.EntityLoader;
+import com.github.Danice123.javamon.pokemon.PokeDB;
 import com.github.Danice123.javamon.screen.Loading;
 import com.github.Danice123.javamon.screen.World;
 import com.github.Danice123.javamon.script.Script;
-import com.github.Danice123.javamon.script.ScriptLoader;
 
 public class Game implements Runnable {
 	
@@ -22,6 +24,8 @@ public class Game implements Runnable {
 	
 	private Player player;
 	private World world;
+	
+	public PokeDB db;
 	
 	public static Game game;
 	
@@ -36,10 +40,13 @@ public class Game implements Runnable {
 		assets.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
 		assets.setLoader(Script.class, new ScriptLoader(new InternalFileHandleResolver()));
 		assets.setLoader(EntityList.class, new EntityLoader(new InternalFileHandleResolver()));
+		assets.setLoader(PokeDB.class, new PokemonLoader(new InternalFileHandleResolver()));
 		
 		//Maps
 		assets.load("res/maps/Pallet_Town/map.tmx", TiledMap.class);
 		assets.load("res/maps/Pallet_Town/entity.lst", EntityList.class);
+		assets.load("res/maps/Route1/map.tmx", TiledMap.class);
+		assets.load("res/maps/Route1/entity.lst", EntityList.class);
 		
 		//Sprites
 		assets.load("res/entity/sprites/Sign.png", Texture.class);
@@ -48,9 +55,13 @@ public class Game implements Runnable {
 		//Gui
 		assets.load("res/gui/border.png", Texture.class);
 		assets.load("res/gui/arrow.png", Texture.class);
+		assets.load(com.github.Danice123.javamon.screen.menu.gen1.Pokedex.pokeball, Texture.class);
 		
 		//Scripts
 		assets.load("res/scripts/Sign.ps", Script.class);
+		
+		//Pokemon
+		assets.load("db/pokemon", PokeDB.class);
 	}
 	
 	public AssetManager getAssets() {
@@ -75,6 +86,7 @@ public class Game implements Runnable {
 		}
 		
 		//Startup
+		db = assets.get("db/pokemon");
 		world = new World(this);
 		player = new Player(this, new Spriteset((Texture) assets.get("res/entity/sprites/Red.png")));
 		player.setCoords(3, 3, 0);
@@ -85,7 +97,7 @@ public class Game implements Runnable {
 		
 		//Starting game
 		display.setScreen(world);
-		load.dispose();
+		load.finished();
 	}
 	
 }

@@ -19,7 +19,7 @@ public class World extends Screen  {
 	public World(Game game) {
 		super(game);
 		this.game = game;
-		map = new MapHandler();
+		map = new MapHandler(game.getAssets());
 	}
 	
 	public void loadMap(String name) {
@@ -36,12 +36,13 @@ public class World extends Screen  {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 15, 10);
 		camera.update();
+		game.getPlayer().place(map);
 	}
 	
 	@Override
 	public void render2(float delta) {
 		if (!isMapLoaded) {
-			map.loadMap(game.getAssets(), mapName, game.getPlayer());
+			map.loadMap(mapName, game.getPlayer());
 			isMapLoaded = true;
 		}
 		Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
@@ -55,5 +56,10 @@ public class World extends Screen  {
 	public void tick() {
 		if (isMapLoaded)
 			map.tick();
+	}
+
+	@Override
+	protected void handleKey(Key key) {
+		
 	}
 }
