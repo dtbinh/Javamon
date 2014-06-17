@@ -83,6 +83,9 @@ public abstract class Screen implements com.badlogic.gdx.Screen, MenuControl {
 			if (child.disposeMe) {
 				hasChild = false;
 				child.dispose();
+				synchronized (child) {
+					child.notifyAll();
+				}
 				child = null;
 			}
 		} else {
@@ -101,6 +104,10 @@ public abstract class Screen implements com.badlogic.gdx.Screen, MenuControl {
 	@Override
 	public Screen getScreen() {
 		return this;
+	}
+	
+	public boolean hasChild() {
+		return hasChild;
 	}
 
 	@Override

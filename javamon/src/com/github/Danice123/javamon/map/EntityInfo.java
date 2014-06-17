@@ -2,6 +2,7 @@ package com.github.Danice123.javamon.map;
 
 import java.util.HashMap;
 
+import com.github.Danice123.javamon.entity.Dir;
 import com.github.Danice123.javamon.map.EntityList.Type;
 
 public class EntityInfo {
@@ -14,4 +15,6 @@ public class EntityInfo {
 	public int y;
 	public int layer;
 	public HashMap<String, String> strings;
+	public Dir facing;
+	public boolean hidden = false;
 }

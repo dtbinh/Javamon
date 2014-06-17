@@ -44,11 +44,18 @@ public class ChatBox extends Screen {
 	protected void handleKey(Key key) {
 		if (key == Key.accept || key == Key.deny) {
 			if (!(index < text.length - 1)) {
+				getGame().getPlayer().menuOpen = false;
+				disposeMe = true;
+				synchronized (this) {
+					try {
+						this.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
 				synchronized (lock) {
 					lock.notifyAll();
 				}
-				getGame().getPlayer().menuOpen = false;
-				disposeMe = true;
 			} else
 				index++;
 		}

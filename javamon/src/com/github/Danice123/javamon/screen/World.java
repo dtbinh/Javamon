@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.github.Danice123.javamon.Game;
 import com.github.Danice123.javamon.entity.Entity;
 import com.github.Danice123.javamon.map.MapHandler;
+import com.github.Danice123.javamon.script.ScriptHandler;
 
 public class World extends Screen  {
 	
@@ -27,8 +28,25 @@ public class World extends Screen  {
 		isMapLoaded = false;
 	}
 	
+	public synchronized void loadMapSynch(String name) {
+		loadMap(name);
+		while(!isMapLoaded) {
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		if (map.mapScript != null)
+			new Thread(new ScriptHandler(game, map.mapScript, null)).start();
+	}
+	
 	public Entity getEntity(int x, int y, int layer) {
 		return map.getEntity(x, y, layer);
+	}
+	
+	public Entity getEntity(String name) {
+		return map.getEntity(name);
 	}
 	
 	@Override
@@ -44,6 +62,9 @@ public class World extends Screen  {
 		if (!isMapLoaded) {
 			map.loadMap(mapName, game.getPlayer());
 			isMapLoaded = true;
+			synchronized (this) {
+				this.notifyAll();
+			}
 		}
 		Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);

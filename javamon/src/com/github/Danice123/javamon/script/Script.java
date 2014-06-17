@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.github.Danice123.javamon.script.commands.Command;
 
 public class Script {
 	
@@ -23,9 +24,9 @@ public class Script {
 				if (line.startsWith("!")) {
 					String[] s = line.substring(1).split(":");
 					if (s.length < 2) {
-						c.add(new Command(Command.CommandType.parseString(s[0]), new String[1]));
+						c.add(newCommand(s[0], new String[1]));
 					} else {
-						c.add(new Command(Command.CommandType.parseString(s[0]), s[1].split(" ")));
+						c.add(newCommand(s[0], s[1].split(" ")));
 					}
 				}
 				if (line.startsWith("$")) {
@@ -40,6 +41,24 @@ public class Script {
 			commands = c.toArray(new Command[c.size()]);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.println("Command Probably not found");
+			e.printStackTrace();
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Script(Script copy) {
+		this.commands = copy.commands;
+		this.strings = (HashMap<String, String>) copy.strings.clone();
+		this.branches = copy.branches;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Command newCommand(String name, String[] args) throws Exception {
+		Class<Command> c = (Class<Command>) Class.forName("com.github.Danice123.javamon.script.commands." + name);
+		Command command = c.newInstance();
+		command.args = args;
+		return command;
 	}
 }

@@ -2,16 +2,19 @@ package com.github.Danice123.javamon.entity;
 
 import java.util.HashMap;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.github.Danice123.javamon.Game;
+import com.github.Danice123.javamon.battlesystem.Battlesystem;
 import com.github.Danice123.javamon.battlesystem.Party;
 import com.github.Danice123.javamon.battlesystem.Trainer;
 import com.github.Danice123.javamon.control.MenuControl;
 import com.github.Danice123.javamon.control.PlayerControl;
 import com.github.Danice123.javamon.entity.sprite.Spriteset;
-import com.github.Danice123.javamon.pokemon.PokeInstance;
-import com.github.Danice123.javamon.pokemon.Pokemon;
 import com.github.Danice123.javamon.pokemon.Status;
+import com.github.Danice123.javamon.screen.menu.gen1.Battle;
 import com.github.Danice123.javamon.screen.menu.gen1.StartMenu;
+import com.github.Danice123.javamon.script.Script;
+import com.github.Danice123.javamon.script.ScriptHandler;
 import com.github.Danice123.javamon_bs.PokeData;
 
 public class Player extends Walkable implements Trainer {
@@ -23,6 +26,7 @@ public class Player extends Walkable implements Trainer {
 	private MenuControl menu;
 	
 	public boolean menuOpen;
+	public boolean controlLock = false;
 	
 	public PokeData pokeData;
 	public String name = "Red";
@@ -38,17 +42,7 @@ public class Player extends Walkable implements Trainer {
 		flag = new HashMap<String, Boolean>();
 		
 		pokeData = new PokeData();
-		pokeData.seen(1);
-		pokeData.seen(2);
 		party = new Party();
-		pokeData.caught(4);
-		pokeData.caught(17);
-		party.add(new PokeInstance(Pokemon.getPokemon("Bulbasaur"), 100));
-		party.add(new PokeInstance(Pokemon.getPokemon("Bulbasaur"), 30));
-		party.add(new PokeInstance(Pokemon.getPokemon("Bulbasaur"), 30));
-		party.add(new PokeInstance(Pokemon.getPokemon("Bulbasaur"), 30));
-		party.add(new PokeInstance(Pokemon.getPokemon("Bulbasaur"), 30));
-		party.add(new PokeInstance(Pokemon.getPokemon("Bulbasaur"), 30));
 	}
 	
 	public boolean getFlag(String s) {
@@ -93,6 +87,8 @@ public class Player extends Walkable implements Trainer {
 				}
 			}
 		} else {
+			if (controlLock)
+				return;
 			if (control.A) {
 				playerActivate();
 				control.A = false;
@@ -101,17 +97,29 @@ public class Player extends Walkable implements Trainer {
 				StartMenu.newStartMenu(game, game.getWorld());
 				menuOpen = true;
 			}
+			if (control.select) {
+				if (!game.getWorld().hasChild()) {
+					Battlesystem bs = new Battlesystem(this, new com.github.Danice123.javamon.entity.Trainer("Test", null, null));
+					Battle b = new Battle(game, game.getWorld(), bs);
+					menuOpen = true;
+					bs.init(b);
+					new Thread(bs).start();
+				}
+			}
 			Dir d = control.getControl();
 			if (d != null) {
 				if (d == Dir.North && trueY() == map.getY() - 1) {
-					game.getWorld().loadMap(map.getMapBorder(d));
+					game.getWorld().loadMapSynch(map.getMapBorder(d));
 					this.setCoords(trueX() - map.getMapBorderTweak(d), -1, getLayer());
 				}
 				if (d == Dir.South && trueY() == 0) {
-					game.getWorld().loadMap(map.getMapBorder(d));
+					game.getWorld().loadMapSynch(map.getMapBorder(d));
 					this.setCoords(trueX() - map.getMapBorderTweak(d), map.getMapBorderBottomHeight(), getLayer());
 				}
 				walk(d);
+				Script trigger = map.getTrigger(trueX(), trueY(), getLayer());
+				if (trigger != null)
+					new Thread(new ScriptHandler(game, trigger, null)).start();
 			}
 		}
 	}
@@ -165,5 +173,15 @@ public class Player extends Walkable implements Trainer {
 		for (int i = 0; i < party.getSize(); i++)
 			if (party.getPokemon(i).status != Status.Fainted) return true;
 		return false;
+	}
+
+	@Override
+	public Texture getImage() {
+		return new Texture("res/trainer/player.png");
+	}
+
+	@Override
+	public Texture getBackImage() {
+		return new Texture("res/playerBack.png");
 	}
 }

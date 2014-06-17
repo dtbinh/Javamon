@@ -3,7 +3,6 @@ package com.github.Danice123.javamon.entity;
 import java.util.HashMap;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.github.Danice123.javamon.entity.sprite.Spriteset;
 import com.github.Danice123.javamon.map.MapHandler;
@@ -21,6 +20,7 @@ public abstract class Entity extends TextureMapObject implements Runnable {
 	private int tickCount = 0;
 	private boolean exists = true;
 	public boolean busy = false;
+	public boolean hidden = false;
 	
 	public Entity(String name, Spriteset sprites, Script script) {
 		super();
@@ -33,15 +33,12 @@ public abstract class Entity extends TextureMapObject implements Runnable {
 	}
 	
 	public void addStrings(HashMap<String, String> map) {
-		script.strings.putAll(map);
+		if (script != null)
+			script.strings.putAll(map);
 	}
 	
 	public void place(MapHandler map) {
 		this.map = map;
-	}
-	
-	protected void setSprite(TextureRegion tex) {
-		setTextureRegion(tex);
 	}
 	
 	public void setCoords(int x, int y, int layer) {
@@ -67,7 +64,9 @@ public abstract class Entity extends TextureMapObject implements Runnable {
 	}
 	
 	public void render(SpriteBatch batch) {
-		batch.draw(getTextureRegion(), getX() / 16, getY() / 16, 1, 1);
+		if (getTextureRegion() == null)
+			return;
+		batch.draw(getTextureRegion(), getX() / 16, (getY() + 4) / 16, 1, 1);
 	}
 	
 	public void activate(Player player) {

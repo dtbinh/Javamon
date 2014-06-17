@@ -8,6 +8,9 @@ public abstract class Walkable extends Entity {
 	private Dir facing = Dir.North;
 	protected boolean isWalking = false;
 	private int ref = 0;
+	
+	private Walkable following;
+	private Dir lastMove;
 
 	public Walkable(String name, Spriteset sprites, Script script) {
 		super(name, sprites, script);
@@ -19,6 +22,16 @@ public abstract class Walkable extends Entity {
 	
 	public void face(Dir dir) {
 		facing = dir;
+		setTextureRegion(sprites.getSprite(getFacing()));
+	}
+	
+	public void setFollowing(Walkable e) {
+		following = e;
+	}
+	
+	public void removeFollower() {
+		following = null;
+		lastMove = null;
 	}
 	
 	public void tick() {
@@ -84,6 +97,19 @@ public abstract class Walkable extends Entity {
 		}
 		isWalking = true;
 		setTextureRegion(sprites.getSprite(Dir.toWalk(getFacing())));
+		if (following != null) {
+			if (lastMove == null) {
+				following.face(dir);
+				following.isWalking = true;
+				following.setTextureRegion(following.sprites.getSprite(Dir.toWalk(dir)));
+			} else {
+				following.face(lastMove);
+				following.isWalking = true;
+				following.setTextureRegion(following.sprites.getSprite(Dir.toWalk(lastMove)));
+			}
+				
+			lastMove = dir;
+		}
 		synchronized (this) {
 			try {
 				this.wait();

@@ -13,6 +13,7 @@ public class PlayerControl implements InputProcessor {
 	public boolean A;
 	public boolean B;
 	public boolean start;
+	public boolean select;
 	
 	public PlayerControl() {
 		moving = new ArrayList<Dir>();
@@ -49,6 +50,9 @@ public class PlayerControl implements InputProcessor {
 		case Keys.ENTER:
 			start = true;
 			return true;
+		case Keys.SHIFT_RIGHT:
+			select = true;
+			return true;
 		}
 		return false;
 	}
@@ -76,6 +80,9 @@ public class PlayerControl implements InputProcessor {
 			return true;
 		case Keys.ENTER:
 			start = false;
+			return true;
+		case Keys.SHIFT_RIGHT:
+			select = false;
 			return true;
 		}
 		return false;

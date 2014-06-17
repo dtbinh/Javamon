@@ -3,6 +3,7 @@ package com.github.Danice123.javamon;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -11,7 +12,9 @@ import com.github.Danice123.javamon.entity.sprite.Spriteset;
 import com.github.Danice123.javamon.loader.EntityLoader;
 import com.github.Danice123.javamon.loader.PokemonLoader;
 import com.github.Danice123.javamon.loader.ScriptLoader;
+import com.github.Danice123.javamon.loader.TriggerLoader;
 import com.github.Danice123.javamon.map.EntityList;
+import com.github.Danice123.javamon.map.TriggerList;
 import com.github.Danice123.javamon.pokemon.PokeDB;
 import com.github.Danice123.javamon.screen.Loading;
 import com.github.Danice123.javamon.screen.World;
@@ -41,16 +44,24 @@ public class Game implements Runnable {
 		assets.setLoader(Script.class, new ScriptLoader(new InternalFileHandleResolver()));
 		assets.setLoader(EntityList.class, new EntityLoader(new InternalFileHandleResolver()));
 		assets.setLoader(PokeDB.class, new PokemonLoader(new InternalFileHandleResolver()));
+		assets.setLoader(TriggerList.class, new TriggerLoader(new InternalFileHandleResolver()));
 		
 		//Maps
-		assets.load("res/maps/Pallet_Town/map.tmx", TiledMap.class);
-		assets.load("res/maps/Pallet_Town/entity.lst", EntityList.class);
-		assets.load("res/maps/Route1/map.tmx", TiledMap.class);
-		assets.load("res/maps/Route1/entity.lst", EntityList.class);
+		FileHandle f = new FileHandle("res/maps/");
+		for (FileHandle map : f.list()) {
+			assets.load(map.path() + "/map.tmx", TiledMap.class);
+			assets.load(map.path() + "/entity.lst", EntityList.class);
+			assets.load(map.path() + "/trigger.lst", TriggerList.class);
+			for (FileHandle script: map.list())
+				if (script.extension().equals("ps"))
+					assets.load(script.path(), Script.class);
+		}
 		
 		//Sprites
-		assets.load("res/entity/sprites/Sign.png", Texture.class);
-		assets.load("res/entity/sprites/Red.png", Texture.class);
+		f = new FileHandle("res/entity/sprites");
+		for (FileHandle img : f.list())
+			if (img.extension().equals("png"))
+				assets.load(img.path(), Texture.class);
 		
 		//Gui
 		assets.load("res/gui/border.png", Texture.class);
@@ -58,7 +69,9 @@ public class Game implements Runnable {
 		assets.load(com.github.Danice123.javamon.screen.menu.gen1.Pokedex.pokeball, Texture.class);
 		
 		//Scripts
-		assets.load("res/scripts/Sign.ps", Script.class);
+		f = new FileHandle("res/scripts");
+		for (FileHandle s : f.list())
+			assets.load(s.path(), Script.class);
 		
 		//Pokemon
 		assets.load("db/pokemon", PokeDB.class);
@@ -93,7 +106,7 @@ public class Game implements Runnable {
 		new Thread(player).start();
 		Gdx.input.setInputProcessor(player.control);
 		
-		world.loadMap("Pallet_Town");
+		world.loadMap("Pallet_Town_Red_Home_2");
 		
 		//Starting game
 		display.setScreen(world);

@@ -4,7 +4,8 @@ import java.util.HashMap;
 
 import com.github.Danice123.javamon.Game;
 import com.github.Danice123.javamon.entity.Entity;
-import com.github.Danice123.javamon.script.Command.CommandType;
+import com.github.Danice123.javamon.script.commands.Branch;
+import com.github.Danice123.javamon.script.commands.Stop;
 
 public class ScriptHandler implements Runnable {
 	
@@ -19,15 +20,16 @@ public class ScriptHandler implements Runnable {
 	}
 
 	public void run() {
-		target.busy = true;
+		if (target != null)
+			target.busy = true;
 		for (int i = 0; i < script.commands.length;) {
-			if (script.commands[i].type == CommandType.Branch) {
+			if (Branch.class.isInstance(script.commands[i])) {
 				if (game.getPlayer().getFlag(parseString(script.commands[i].args[0], script.strings))) {
 					i = script.branches.get(script.commands[i].args[1]);
 				} else {
 					i++;
 				}
-			} else if (script.commands[i].type == CommandType.Stop){
+			} else if (Stop.class.isInstance(script.commands[i])){
 				break;
 			} else {
 				try {
@@ -39,7 +41,8 @@ public class ScriptHandler implements Runnable {
 				i++;
 			}
 		}
-		target.busy = false;
+		if (target != null)
+			target.busy = false;
 	}
 	
 	private String parseString(String s, HashMap<String, String> strings) {

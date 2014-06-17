@@ -3,11 +3,12 @@ package com.github.Danice123.javamon.entity;
 import com.github.Danice123.javamon.entity.sprite.Spriteset;
 import com.github.Danice123.javamon.script.Script;
 
-public abstract class Stationary extends Entity {
+public class Stationary extends Entity {
 
 	public Stationary(String name, Spriteset sprites, Script script) {
 		super(name, sprites, script);
-		setSprite(sprites.getSprite(Dir.South));
+		if (sprites != null)
+			setTextureRegion(sprites.getSprite(Dir.South));
 	}
 
 	@Override

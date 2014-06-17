@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.github.Danice123.javamon.entity.Dir;
 import com.github.Danice123.javamon.entity.Entity;
 import com.github.Danice123.javamon.entity.Player;
+import com.github.Danice123.javamon.script.Script;
 
 public class MapHandler {
 	
@@ -21,6 +22,8 @@ public class MapHandler {
 	
 	private OrthogonalTiledMapRenderer renderer;
 	private Player player;
+	
+	private Script[][][] triggers;
 	
 	private MapHandler topMap;
 	private MapHandler bottomMap;
@@ -31,6 +34,8 @@ public class MapHandler {
 	private int bottomTweak;
 	private int leftTweak;
 	private int rightTweak;
+	
+	public Script mapScript;
 	
 	public void loadMap(String map, Player player) {
 		this.player = player;
@@ -43,11 +48,22 @@ public class MapHandler {
 			renderer = new OrthogonalTiledMapRenderer(tiles, 1/16f);
 		
 			EntityList l = assets.get("res/maps/" + map + "/entity.lst");
-			l.load(assets, this, renderer.getMap().getLayers());
+			l.load(assets, this, renderer.getMap().getLayers(), map);
+			
+			TriggerList t = assets.get("res/maps/" + map + "/trigger.lst");
+			triggers = t.load(assets, this, map);
 			
 			mapCache.put(map, tiles);
 		} else {
 			renderer = new OrthogonalTiledMapRenderer(mapCache.get(map), 1/16f);
+			TriggerList t = assets.get("res/maps/" + map + "/trigger.lst");
+			triggers = t.load(assets, this, map);
+		}
+		
+		try {
+			mapScript = assets.get("res/maps/" + map + "/mapScript.ps");
+		} catch (NullPointerException e) {
+			mapScript = null;
 		}
 		
 		topMap = null;
@@ -85,7 +101,7 @@ public class MapHandler {
 			renderer = new OrthogonalTiledMapRenderer(tiles, 1/16f);
 		
 			EntityList l = assets.get("res/maps/" + map + "/entity.lst");
-			l.load(assets, this, renderer.getMap().getLayers());
+			l.load(assets, this, renderer.getMap().getLayers(), map);
 			mapCache.put(map, tiles);
 		} else {
 			renderer = new OrthogonalTiledMapRenderer(mapCache.get(map), 1/16f);
@@ -114,14 +130,16 @@ public class MapHandler {
 		renderer.setView(camera);
 		renderer.getSpriteBatch().begin();
 		for (int i = 0; i < renderer.getMap().getLayers().getCount(); i++) {
-			MapLayer layer = renderer.getMap().getLayers().get(i);
-			renderer.renderTileLayer((TiledMapTileLayer) layer);
-			for (int j = 0; j < layer.getObjects().getCount(); j++) {
-				Entity e = (Entity) layer.getObjects().get(j);
-				e.render(renderer.getSpriteBatch());
-			}
-			if (player.getLayer() == i) {
-				player.render(renderer.getSpriteBatch());
+			renderer.renderTileLayer((TiledMapTileLayer) renderer.getMap().getLayers().get(i));
+			if (i - 1 >= 0) {
+				MapLayer layer = renderer.getMap().getLayers().get(i - 1);
+				for (int j = 0; j < layer.getObjects().getCount(); j++) {
+					Entity e = (Entity) layer.getObjects().get(j);
+					if (!e.hidden)
+						e.render(renderer.getSpriteBatch());
+				}
+				if (player.getLayer() == i - 1)
+					player.render(renderer.getSpriteBatch());
 			}
 		}
 		renderer.getSpriteBatch().end();
@@ -134,7 +152,8 @@ public class MapHandler {
 			renderer.renderTileLayer((TiledMapTileLayer) layer);
 			for (int i = 0; i < layer.getObjects().getCount(); i++) {
 				Entity e = (Entity) layer.getObjects().get(i);
-				e.render(renderer.getSpriteBatch());
+				if (!e.hidden)
+					e.render(renderer.getSpriteBatch());
 			}
 		}
 		renderer.getSpriteBatch().end();
@@ -156,7 +175,7 @@ public class MapHandler {
 			rightMap.dispose();
 		renderer.dispose();
 	}
-	
+
 	public void tick() {
 		player.tick();
 		for (int j = 0; j < renderer.getMap().getLayers().getCount(); j++) {
@@ -173,6 +192,8 @@ public class MapHandler {
 		}
 		for (MapObject o : renderer.getMap().getLayers().get(layer).getObjects()) {
 			Entity e = (Entity) o;
+			if (e.hidden)
+				continue;
 			if (x == e.getHitBox()[0] && y == e.getHitBox()[1])
 				return true;
 			if (e.getHitBox().length > 2 && x == e.getHitBox()[2] && y == e.getHitBox()[3])
@@ -194,12 +215,36 @@ public class MapHandler {
 		return null;
 	}
 	
+	public Entity getEntity(String name) {
+		for (MapLayer l : renderer.getMap().getLayers()) {
+			for (MapObject o : l.getObjects()) {
+				Entity e = (Entity) o;
+				if (e.getName().equals(name))
+					return e;
+			}
+		}
+		return null;
+	}
+	
+	public Script getTrigger(int x, int y, int layer) {
+		System.out.println(x + "," + y + "," + layer);
+		try {
+			return triggers[layer][x][y];
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return null;
+		}
+	}
+	
 	public int getX() {
 		return ((TiledMapTileLayer) renderer.getMap().getLayers().get(0)).getWidth();
 	}
 	
 	public int getY() {
 		return ((TiledMapTileLayer) renderer.getMap().getLayers().get(0)).getHeight();
+	}
+	
+	public int getLayer() {
+		return renderer.getMap().getLayers().getCount();
 	}
 	
 	public String getMapBorder(Dir d) {

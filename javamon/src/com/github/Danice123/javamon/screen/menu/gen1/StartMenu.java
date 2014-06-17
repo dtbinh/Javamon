@@ -10,6 +10,8 @@ public class StartMenu extends com.github.Danice123.javamon.screen.menu.StartMen
 	private final int height = 140 * Display.scale;
 	
 	private int index;
+	private boolean hasPokemon;
+	private boolean hasPokedex;
 
 	public StartMenu(Game game, Screen parent) {
 		super(game, parent);
@@ -19,7 +21,8 @@ public class StartMenu extends com.github.Danice123.javamon.screen.menu.StartMen
 	
 	@Override
 	protected void init() {
-		
+		hasPokemon = getGame().getPlayer().getParty().getSize() > 0;
+		hasPokedex = getGame().getPlayer().getFlag("HasPokedex");
 	}
 
 	@Override
@@ -29,8 +32,14 @@ public class StartMenu extends com.github.Danice123.javamon.screen.menu.StartMen
 		batch.begin();
 		Display.border.drawBox(batch, side, top - height, width, height);
 		Display.font.setColor(0f, 0f, 0f, 1f);
+		if (!hasPokedex)
+			Display.font.setColor(0f, 0f, 0f, 0.5f);
 		Display.font.draw(batch, "PokeDex", side + 18 * Display.scale, 	top - (12 * Display.scale));
+		Display.font.setColor(0f, 0f, 0f, 1f);
+		if (!hasPokemon)
+			Display.font.setColor(0f, 0f, 0f, 0.5f);
 		Display.font.draw(batch, "Pokemon", side + 18 * Display.scale, 	top - (12 * Display.scale) - (18 * Display.scale * 1));
+		Display.font.setColor(0f, 0f, 0f, 1f);
 		Display.font.draw(batch, "Bag", 	side + 18 * Display.scale, 	top - (12 * Display.scale) - (18 * Display.scale * 2));
 		Display.font.draw(batch, "Trainer", side + 18 * Display.scale, 	top - (12 * Display.scale) - (18 * Display.scale * 3));
 		Display.font.draw(batch, "Save", 	side + 18 * Display.scale, 	top - (12 * Display.scale) - (18 * Display.scale * 4));
@@ -68,10 +77,12 @@ public class StartMenu extends com.github.Danice123.javamon.screen.menu.StartMen
 		case accept:
 			switch (index) {
 			case 0:
-				openPokedex();
+				if (hasPokedex)
+					openPokedex();
 				break;
 			case 1:
-				openPokemon();
+				if (hasPokemon)
+					openPokemon();
 				break;
 			case 2:
 				openBag();
